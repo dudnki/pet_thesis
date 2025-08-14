@@ -1,0 +1,12 @@
+# 모든 파일과 폴더를 무시합니다.
+/dog/
+/lime_results/
+/nested_lime_results/
+/nested_sal/
+/nested_shap_results/
+/results/
+/sal/
+/shap_results/
+pet/model_save/
+pet/nested_model_save/
+
