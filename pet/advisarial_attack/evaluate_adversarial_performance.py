@@ -68,7 +68,7 @@ def evaluate_adversarial_performance(model, dataloader, attack_fn, attack_name, 
             adv_data = attack_fn(data, epsilon, data_grad)
         elif attack_name == 'cw':
             c = epsilon * 300
-            adv_data = attack_fn(model, data, target, c=c, iters=500, lr=0.01, device='cuda')
+            adv_data = attack_fn(model, data, target, c=c, iters=100, lr=0.01, device='cuda')
         else:
             adv_data = attack_fn(model, data, target, epsilon)
             
@@ -115,26 +115,26 @@ transform = transforms.Compose([
 
 num_classes = 1
 model_dict = {
-    'custom_efficient': get_transfer_model('custom_efficient', num_classes),
-    'convnext_large': get_transfer_model('convnext_large', num_classes),
-    'swin_large': get_transfer_model('swin_large', num_classes),
+    #'custom_efficient': get_transfer_model('custom_efficient', num_classes),
+    #'convnext_large': get_transfer_model('convnext_large', num_classes),
+    #'swin_large': get_transfer_model('swin_large', num_classes),
     'nfnet_f6': get_transfer_model('nfnet_f6', num_classes),
-    'efficientnet_b0': get_transfer_model('efficientnet_b0', num_classes),
-    'efficientnet_v2_1': get_transfer_model('efficientnet_v2_1', num_classes),
-    'efficientnet_v2': get_transfer_model('efficientnet_v2', num_classes),
-    'swin_tiny': get_transfer_model('swin_tiny', num_classes),
-    'vgg16': get_transfer_model('vgg16', num_classes),
-    'resnet50': get_transfer_model('resnet50', num_classes),
-    'densenet121': get_transfer_model('densenet121', num_classes),
-    'convnext_tiny': get_transfer_model('convnext_tiny', num_classes),
-    'vit_base': get_transfer_model('vit_base', num_classes),
+    #'efficientnet_b0': get_transfer_model('efficientnet_b0', num_classes),
+    #'efficientnet_v2_1': get_transfer_model('efficientnet_v2_1', num_classes),
+    #'efficientnet_v2': get_transfer_model('efficientnet_v2', num_classes),
+    #'swin_tiny': get_transfer_model('swin_tiny', num_classes),
+    #'vgg16': get_transfer_model('vgg16', num_classes),
+    #'resnet50': get_transfer_model('resnet50', num_classes),
+    #'densenet121': get_transfer_model('densenet121', num_classes),
+    #'convnext_tiny': get_transfer_model('convnext_tiny', num_classes),
+    #'vit_base': get_transfer_model('vit_base', num_classes),
 }
 
 
 dataset = EyeDataset_test(path, disease='cataract', transform=transform)
 print('data_len:', len(dataset))
 model_path = './pet/model_save'
-loader = DataLoader(dataset, batch_size=32, shuffle=True)
+loader = DataLoader(dataset, batch_size=8, shuffle=True)
 file_path = "pet/advisarial_attack/adversl_eval.json"
 
 # 기존 데이터 불러오기
