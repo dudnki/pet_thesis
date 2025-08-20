@@ -1,0 +1,350 @@
+{
+    "fgsm": {
+        "0.005": {
+            "consistency": {
+                "detector_TN": 0,
+                "detector_FP": 206,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 0,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.485,
+                "final_system_accuracy": 0.485
+            },
+            "patchzero": {
+                "detector_TN": 71,
+                "detector_FP": 135,
+                "detector_FN": 55,
+                "detector_TP": 139,
+                "final_A_count": 71,
+                "final_B_count": 139,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.525,
+                "final_system_accuracy": 0.525
+            },
+            "resnet": {
+                "detector_TN": 0,
+                "detector_FP": 206,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 0,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.485,
+                "final_system_accuracy": 0.485
+            }
+        },
+        "0.01": {
+            "consistency": {
+                "detector_TN": 0,
+                "detector_FP": 206,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 0,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.485,
+                "final_system_accuracy": 0.485
+            },
+            "patchzero": {
+                "detector_TN": 80,
+                "detector_FP": 126,
+                "detector_FN": 41,
+                "detector_TP": 153,
+                "final_A_count": 80,
+                "final_B_count": 153,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.5825,
+                "final_system_accuracy": 0.5825
+            },
+            "resnet": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 180,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 1.0,
+                "final_system_accuracy": 0.935
+            }
+        },
+        "0.02": {
+            "consistency": {
+                "detector_TN": 189,
+                "detector_FP": 17,
+                "detector_FN": 121,
+                "detector_TP": 73,
+                "final_A_count": 171,
+                "final_B_count": 73,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.655,
+                "final_system_accuracy": 0.61
+            },
+            "patchzero": {
+                "detector_TN": 73,
+                "detector_FP": 133,
+                "detector_FN": 36,
+                "detector_TP": 158,
+                "final_A_count": 73,
+                "final_B_count": 158,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.5775,
+                "final_system_accuracy": 0.5775
+            },
+            "resnet": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 183,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 1.0,
+                "final_system_accuracy": 0.9425
+            }
+        }
+    },
+    "cw": {
+        "1.5": {
+            "consistency": {
+                "detector_TN": 205,
+                "detector_FP": 1,
+                "detector_FN": 92,
+                "detector_TP": 102,
+                "final_A_count": 184,
+                "final_B_count": 102,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.7675,
+                "final_system_accuracy": 0.715
+            },
+            "patchzero": {
+                "detector_TN": 68,
+                "detector_FP": 138,
+                "detector_FN": 118,
+                "detector_TP": 76,
+                "final_A_count": 68,
+                "final_B_count": 76,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.36,
+                "final_system_accuracy": 0.36
+            },
+            "resnet": {
+                "detector_TN": 203,
+                "detector_FP": 3,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 183,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.9925,
+                "final_system_accuracy": 0.9425
+            }
+        },
+        "3.0": {
+            "consistency": {
+                "detector_TN": 163,
+                "detector_FP": 43,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 152,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.8925,
+                "final_system_accuracy": 0.865
+            },
+            "patchzero": {
+                "detector_TN": 70,
+                "detector_FP": 136,
+                "detector_FN": 132,
+                "detector_TP": 62,
+                "final_A_count": 70,
+                "final_B_count": 62,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.33,
+                "final_system_accuracy": 0.33
+            },
+            "resnet": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 1,
+                "detector_TP": 193,
+                "final_A_count": 184,
+                "final_B_count": 193,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.9975,
+                "final_system_accuracy": 0.9425
+            }
+        },
+        "6.0": {
+            "consistency": {
+                "detector_TN": 205,
+                "detector_FP": 1,
+                "detector_FN": 137,
+                "detector_TP": 57,
+                "final_A_count": 181,
+                "final_B_count": 57,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.655,
+                "final_system_accuracy": 0.595
+            },
+            "patchzero": {
+                "detector_TN": 68,
+                "detector_FP": 138,
+                "detector_FN": 128,
+                "detector_TP": 66,
+                "final_A_count": 68,
+                "final_B_count": 66,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.335,
+                "final_system_accuracy": 0.335
+            },
+            "resnet": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 181,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 1.0,
+                "final_system_accuracy": 0.9375
+            }
+        }
+    },
+    "pgd": {
+        "0.005": {
+            "consistency": {
+                "detector_TN": 0,
+                "detector_FP": 206,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 0,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.485,
+                "final_system_accuracy": 0.485
+            },
+            "patchzero": {
+                "detector_TN": 75,
+                "detector_FP": 131,
+                "detector_FN": 55,
+                "detector_TP": 139,
+                "final_A_count": 75,
+                "final_B_count": 139,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.535,
+                "final_system_accuracy": 0.535
+            },
+            "resnet": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 183,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 1.0,
+                "final_system_accuracy": 0.9425
+            }
+        },
+        "0.01": {
+            "consistency": {
+                "detector_TN": 195,
+                "detector_FP": 11,
+                "detector_FN": 117,
+                "detector_TP": 77,
+                "final_A_count": 181,
+                "final_B_count": 77,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.68,
+                "final_system_accuracy": 0.645
+            },
+            "patchzero": {
+                "detector_TN": 74,
+                "detector_FP": 132,
+                "detector_FN": 36,
+                "detector_TP": 158,
+                "final_A_count": 74,
+                "final_B_count": 158,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.58,
+                "final_system_accuracy": 0.58
+            },
+            "resnet": {
+                "detector_TN": 7,
+                "detector_FP": 199,
+                "detector_FN": 5,
+                "detector_TP": 189,
+                "final_A_count": 6,
+                "final_B_count": 189,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.49,
+                "final_system_accuracy": 0.4875
+            }
+        },
+        "0.02": {
+            "consistency": {
+                "detector_TN": 0,
+                "detector_FP": 206,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 0,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.485,
+                "final_system_accuracy": 0.485
+            },
+            "patchzero": {
+                "detector_TN": 83,
+                "detector_FP": 123,
+                "detector_FN": 17,
+                "detector_TP": 177,
+                "final_A_count": 83,
+                "final_B_count": 177,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.65,
+                "final_system_accuracy": 0.65
+            },
+            "resnet": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 194,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 1.0,
+                "final_system_accuracy": 0.97
+            }
+        }
+    }
+}
