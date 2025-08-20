@@ -379,20 +379,40 @@ for model_name, model in model_dict.items():
     model.load_state_dict(state_dict)
     
     # 2) 전체 결과 저장을 위한 딕셔너리
-    overall_results = {}
+    dataset_cache_dir = "pet/dataset_cache"
+    os.makedirs(dataset_cache_dir, exist_ok=True)
 
-    # 3) attack_method → epsilon 순회 (데이터 생성)
+    overall_results = {}
     for attack_name, attack_fn in attack_method_dict.items():
         eps_results = {}
-        for eps in [0.005, 0.01, 0.02]:
+        for eps in [0.005, 0.02]:
             
-            #  Step 1: 데이터셋을 공격 조건별로 **한 번만** 생성합니다.
-            print("\n" + "="*60)
-            print(f"Creating dataset for ATTACK: {attack_name.upper()}, EPSILON: {eps}")
-            print("="*60)
-            adversarial_dataset, clean_tensors, adv_tensors = create_attack_dataset(
-                model, loader, attack_fn, attack_name, eps
-            )
+            #  Step 2: 데이터셋 파일 경로 정의
+            dataset_filename = f"{model_name}_{attack_name}_eps{eps}.pt"
+            dataset_filepath = os.path.join(dataset_cache_dir, dataset_filename)
+
+            #  Step 3: 파일 존재 여부에 따라 로드 또는 생성/저장
+            if os.path.exists(dataset_filepath):
+                # 파일이 존재하면 -> 로드
+                print(f"\n--- Loading pre-generated dataset from: {dataset_filepath} ---")
+                saved_data = torch.load(dataset_filepath)
+                adversarial_dataset = saved_data['dataset']
+                # clean_tensors = saved_data['clean'] # 플롯팅 등에 필요하면 사용
+                # adv_tensors = saved_data['adv']   # 플롯팅 등에 필요하면 사용
+            
+            else:
+                # 파일이 없으면 -> 생성 및 저장
+                print(f"\n--- Generating and saving new dataset to: {dataset_filepath} ---")
+                adversarial_dataset, clean_tensors, adv_tensors = create_attack_dataset(
+                    model, loader, attack_fn, attack_name, eps
+                )
+                
+                # 여러 객체를 딕셔너리 형태로 저장
+                torch.save({
+                    'dataset': adversarial_dataset,
+                    'clean': clean_tensors,
+                    'adv': adv_tensors
+                }, dataset_filepath)
 
             # (옵션) 데이터 분포 시각화도 여기서 한 번만 수행
             # title = f"{model_name}_{attack_name.upper()}_eps={eps}"
