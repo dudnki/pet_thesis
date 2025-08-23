@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+import random 
 import torch
 import numpy as np
 import torch.nn as nn
@@ -15,15 +16,14 @@ from fuc_torch.values import metrics
 from FGSM import fgsm_attack
 from PGD import pgd_attack
 from CW import cw_attack
+from detector import ResNetDiscriminator
 import json
 from torch.utils.data import random_split
 
 from fuc_torch.model_torch import get_transfer_model
 from fuc_torch.data_load import EyeDataset, EyeDataset_test
 
-from PatchZeroDetector import PatchZeroDetector
-from consistency_detector import ConsistencyDetector
-
+from distillation import train_detector_with_distillation, get_detectors_for_experiment
 
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -31,8 +31,31 @@ BATCH_SIZE = 16
 NUM_WORKERS = 0
 SEED = 1337
 
+class NumpyEncoder(json.JSONEncoder):
+    """ NumPy 타입을 JSON으로 변환 가능하게 만드는 Encoder """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)  # NumPy 정수를 파이썬 정수로
+        if isinstance(obj, np.floating):
+            return float(obj) # NumPy 실수를 파이썬 실수로
+        if isinstance(obj, np.ndarray):
+            return obj.tolist() # NumPy 배열을 파이썬 리스트로
+        return super(NumpyEncoder, self).default(obj)
 
 
+def seed_everything(seed):
+    """
+    재현성을 위해 모든 시드를 고정하는 함수
+    """
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if use multi-GPU
+    # cuDNN을 사용하도록 설정
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def sigmoid_np(x):
     return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
@@ -67,24 +90,6 @@ def plot_global_channel_distributions(clean_tensor, adv_tensor, title_prefix="")
     # plt.savefig(f'pet/advisarial_attack/attacked_anal/'+title_prefix+'.png')
     plt.show() # 로컬 환경에서 바로 확인하기 위해 show()로 변경하거나, 기존 코드를 유지하세요.
 
-
-class ResNetDiscriminator(nn.Module):
-    def __init__(self):
-        super().__init__()
-        base_model = models.resnet50(pretrained=True)
-        # 기존 fc 레이어 제거
-        self.feature_extractor = nn.Sequential(*list(base_model.children())[:-1])  # [B, 512, 1, 1]
-        self.classifier = nn.Sequential(
-            nn.Linear(2048, 1024),  # ResNet50의 fc 입력은 2048
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(1024, num_classes),
-        )
-    def forward(self, x):
-        x = self.feature_extractor(x)  # [B, 512, 1, 1]
-        x = x.view(x.size(0), -1)      # [B, 512]
-        x = self.classifier(x)         # [B, 1]
-        return x  # logits
 
 
 def create_attack_dataset(model, dataloader, attack_fn, attack_name, epsilon, device=DEVICE):
@@ -338,117 +343,102 @@ transform = transforms.Compose([
 
 num_classes = 1
 model_dict = {
-    #'swin_tiny': get_transfer_model('swin_tiny', num_classes),
+    'swin_tiny': get_transfer_model('swin_tiny', num_classes),
     #'vgg16': get_transfer_model('vgg16', num_classes),
     #'resnet50': get_transfer_model('resnet50', num_classes),
     #'densenet121': get_transfer_model('densenet121', num_classes),
     #'efficientnet_b0': get_transfer_model('efficientnet_b0', num_classes),
     #'convnext_tiny': get_transfer_model('convnext_tiny', num_classes),
-    #'vit_base': get_transfer_model('vit_base', num_classes),
+    'vit_base': get_transfer_model('vit_base', num_classes),
     #'custom_efficient': get_transfer_model('custom_efficient', num_classes),
     'efficientnet_v2_1': get_transfer_model('efficientnet_v2_1', num_classes),
 }
-
-
-def get_fresh_detectors(victim_model):
-    return {
-        'consistency': ConsistencyDetector(
-            victim_model=victim_model,
-            blur_sigmas=(0.8, 1.2), bit_depths=(3, 4, 5),
-            down_up_scales=(0.75, 0.9), gauss_noise_stds=(0.01, 0.02),
-            temp=1.0, hidden=16, drop=0.2
-        ),
-        'patchzero': PatchZeroDetector(
-            victim_model=victim_model,
-            win=64, stride=32, pad=16, topk=1, expand=8, fill="zero"
-        ),
-        'resnet': ResNetDiscriminator()
-    }
-
 
 
 dataset = EyeDataset_test(path, disease='cataract', transform=transform)
 print('data_len:', len(dataset))
 model_path = './pet/model_save'
 loader = DataLoader(dataset, batch_size=16, shuffle=True)
+
+seed_everything(SEED)
+
+#  모델 루프 시작
 for model_name, model in model_dict.items():
-    # 1) 모델 로드
+    # 1. 각 모델의 결과 파일을 루프 시작 시점에 로드합니다.
+    output_filename = f"pet/advisarial_attack/adversarial_discriminator_eval/adversarial_discriminator_{model_name}.json"
+    try:
+        with open(output_filename, "r", encoding="utf-8") as f:
+            overall_results = json.load(f)
+        print(f"--- Loaded existing results for {model_name} from {output_filename} ---")
+    except FileNotFoundError:
+        overall_results = {}
+        print(f"--- No existing result file for {model_name}. Starting fresh. ---")
+
+    # Victim 모델 로드
     model_file = os.path.join(model_path, f'{model_name}.pt')
-    print(f"Loading model from: {model_file}")
+    print(f"Loading victim model from: {model_file}")
     state_dict = torch.load(model_file, map_location='cpu')
     model.load_state_dict(state_dict)
     
-    # 2) 전체 결과 저장을 위한 딕셔너리
     dataset_cache_dir = "pet/dataset_cache"
     os.makedirs(dataset_cache_dir, exist_ok=True)
 
-    overall_results = {}
+    # 공격(attack) 루프 시작
     for attack_name, attack_fn in attack_method_dict.items():
-        eps_results = {}
-        for eps in [0.005, 0.02]:
+        # epsilon 루프 시작
+        for eps in [0.005, 0.02]: # ✅ 여기에 모든 eps 값을 한 번만 정의
+            raw_key = eps * 300 if attack_name == 'cw' else eps
+            key_eps = str(raw_key)
             
-            #  Step 2: 데이터셋 파일 경로 정의
+            # 데이터셋 준비
             dataset_filename = f"{model_name}_{attack_name}_eps{eps}.pt"
             dataset_filepath = os.path.join(dataset_cache_dir, dataset_filename)
 
-            #  Step 3: 파일 존재 여부에 따라 로드 또는 생성/저장
             if os.path.exists(dataset_filepath):
-                # 파일이 존재하면 -> 로드
-                print(f"\n--- Loading pre-generated dataset from: {dataset_filepath} ---")
-                saved_data = torch.load(dataset_filepath)
+                saved_data = torch.load(dataset_filepath, weights_only=False)
                 adversarial_dataset = saved_data['dataset']
-                # clean_tensors = saved_data['clean'] # 플롯팅 등에 필요하면 사용
-                # adv_tensors = saved_data['adv']   # 플롯팅 등에 필요하면 사용
-            
             else:
-                # 파일이 없으면 -> 생성 및 저장
-                print(f"\n--- Generating and saving new dataset to: {dataset_filepath} ---")
                 adversarial_dataset, clean_tensors, adv_tensors = create_attack_dataset(
                     model, loader, attack_fn, attack_name, eps
                 )
-                
-                # 여러 객체를 딕셔너리 형태로 저장
-                torch.save({
-                    'dataset': adversarial_dataset,
-                    'clean': clean_tensors,
-                    'adv': adv_tensors
-                }, dataset_filepath)
+                torch.save({'dataset': adversarial_dataset, 'clean': clean_tensors, 'adv': adv_tensors}, dataset_filepath)
 
-            # (옵션) 데이터 분포 시각화도 여기서 한 번만 수행
-            # title = f"{model_name}_{attack_name.upper()}_eps={eps}"
-            # plot_global_channel_distributions(clean_tensors, adv_tensors, title_prefix=title)
+            # ✅ `setdefault`를 사용해 현재 작업할 딕셔너리 위치를 명확히 지정합니다.
+            # 이 방식은 딕셔너리를 덮어쓰지 않고 안전하게 값을 추가/수정합니다.
+            eps_level_results = overall_results.setdefault(attack_name, {}).setdefault(key_eps, {})
 
-            detec_results = {}
+            teacher, standard_students, distillation_student = get_detectors_for_experiment(model)
+            teacher.to(DEVICE).eval()
             
-            #  Step 2: 모든 탐지기에 대해 생성된 데이터셋을 **재사용**하여 학습합니다.
-            
-            # 매번 새로운 학습을 위해 초기화된 탐지기 모델들을 가져옵니다.
-            detectors_to_train = get_fresh_detectors(model)
-            
-            for detec_name, detector_instance in detectors_to_train.items():
+            # 일반 학습
+            for detec_name, student_instance in standard_students.items():
+                if detec_name in eps_level_results:
+                    print(f"Skipping: {model_name}/{attack_name}/{key_eps}/{detec_name}")
+                    continue
                 
-                # 2-1) 판별 모델 훈련
+                print(f"Running: {model_name}/{attack_name}/{key_eps}/{detec_name}")
                 trained_detector, test_loader = train_detector(
-                    detector=detector_instance,      # 훈련시킬 새로운 탐지기 모델
-                    dataset=adversarial_dataset, # 재사용하는 데이터셋
-                    detec_name=detec_name
+                    detector=student_instance, dataset=adversarial_dataset, detec_name=detec_name
                 )
-                
-                # 2-2) 전체 파이프라인 성능 평가
-                pipeline_metrics = evaluate_defense_pipeline(
-                    model, trained_detector, test_loader
+                pipeline_metrics = evaluate_defense_pipeline(model, trained_detector, test_loader)
+                eps_level_results[detec_name] = pipeline_metrics
+
+            # 지식 증류 학습
+            for detec_name, student_instance in distillation_student.items():
+                if detec_name in eps_level_results:
+                    print(f"Skipping: {model_name}/{attack_name}/{key_eps}/{detec_name}")
+                    continue
+
+                print(f"Running Distillation: {model_name}/{attack_name}/{key_eps}/{detec_name}")
+                trained_student, test_loader = train_detector_with_distillation(
+                    teacher_model=teacher, student_model=student_instance, dataset=adversarial_dataset, detec_name=detec_name
                 )
-                
-                detec_results[detec_name] = pipeline_metrics
+                pipeline_metrics = evaluate_defense_pipeline(model, trained_student, test_loader)
+                eps_level_results[detec_name] = pipeline_metrics
 
-            # 결과 저장
-            key_eps = eps * 300 if attack_name == 'cw' else eps
-            eps_results[key_eps] = detec_results
-        
-        overall_results[attack_name] = eps_results
-
-    # 4) 모델별 최종 결과 저장
-    output_filename = f"pet/advisarial_attack/adversarial_discriminator_eval/adversarial_discriminator_{model_name}.json"
+    # 모든 루프가 끝난 후, 해당 모델에 대한 최종 결과를 파일에 저장
+    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
     with open(output_filename, "w", encoding="utf-8") as f:
-        json.dump(overall_results, f, ensure_ascii=False, indent=4)
-    print(f"\n All experiments for {model_name} are complete. Results saved to {output_filename}")
+        json.dump(overall_results, f, ensure_ascii=False, indent=4, cls=NumpyEncoder)
+
+    print(f"\n✅ All experiments for {model_name} are complete. Results updated in {output_filename}")

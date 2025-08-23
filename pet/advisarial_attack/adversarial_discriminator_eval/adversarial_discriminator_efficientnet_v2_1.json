@@ -36,6 +36,18 @@
                 "total_adv": 194,
                 "detector_accuracy": 0.6325,
                 "final_system_accuracy": 0.615
+            },
+            "resnet18_student": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 194,
+                "detector_TP": 0,
+                "final_A_count": 192,
+                "final_B_count": 0,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.515,
+                "final_system_accuracy": 0.48
             }
         },
         "0.01": {
@@ -112,6 +124,18 @@
                 "total_adv": 194,
                 "detector_accuracy": 1.0,
                 "final_system_accuracy": 0.965
+            },
+            "resnet18_student": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 184,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 1.0,
+                "final_system_accuracy": 0.945
             }
         }
     },
@@ -152,6 +176,18 @@
                 "total_adv": 194,
                 "detector_accuracy": 0.5575,
                 "final_system_accuracy": 0.5475
+            },
+            "resnet18_student": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 138,
+                "detector_TP": 56,
+                "final_A_count": 187,
+                "final_B_count": 56,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.655,
+                "final_system_accuracy": 0.6075
             }
         },
         "3.0": {
@@ -228,6 +264,18 @@
                 "total_adv": 194,
                 "detector_accuracy": 0.705,
                 "final_system_accuracy": 0.6725
+            },
+            "resnet18_student": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 183,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 1.0,
+                "final_system_accuracy": 0.9425
             }
         }
     },
@@ -268,6 +316,18 @@
                 "total_adv": 194,
                 "detector_accuracy": 0.685,
                 "final_system_accuracy": 0.6425
+            },
+            "resnet18_student": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 0,
+                "detector_TP": 194,
+                "final_A_count": 188,
+                "final_B_count": 194,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 1.0,
+                "final_system_accuracy": 0.955
             }
         },
         "0.01": {
@@ -344,6 +404,18 @@
                 "total_adv": 194,
                 "detector_accuracy": 1.0,
                 "final_system_accuracy": 0.9225
+            },
+            "resnet18_student": {
+                "detector_TN": 206,
+                "detector_FP": 0,
+                "detector_FN": 194,
+                "detector_TP": 0,
+                "final_A_count": 187,
+                "final_B_count": 0,
+                "total_clean": 206,
+                "total_adv": 194,
+                "detector_accuracy": 0.515,
+                "final_system_accuracy": 0.4675
             }
         }
     }
