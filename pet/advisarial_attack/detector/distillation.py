@@ -1,9 +1,9 @@
-from detector import ResNetDiscriminator
+from pet.advisarial_attack.detector.detector import ResNetDiscriminator
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from PatchZeroDetector import PatchZeroDetector
-from consistency_detector import ConsistencyDetector
+from pet.advisarial_attack.detector.PatchZeroDetector import PatchZeroDetector
+from pet.advisarial_attack.detector.consistency_detector import ConsistencyDetector
 
 def train_detector_with_distillation(teacher_model, student_model, dataset, detec_name, device='cuda', epochs=10, lr=1e-3, T=4.0, alpha=0.3):
     """
