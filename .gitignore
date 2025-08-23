@@ -10,3 +10,5 @@
 pet/model_save/
 pet/nested_model_save/
 pet/dataset_cache
+__pycache__/
+*.pyc
